@@ -14,10 +14,9 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.json());
 
-// Configure rate limiter
 const limiter = rateLimit({
-  windowMs: 5 * 1000, // 5 seconds
-  max: 1, // Limit each IP to 1 request per `windowMs`
+  windowMs: 5 * 1000,
+  max: 3, 
   message: 'Server is busy, please try again later.',
 });
 
