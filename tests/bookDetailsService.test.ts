@@ -53,7 +53,7 @@ describe("Verify GET /book_dtls/:id", () => {
         expect(response.body).toStrictEqual(expectedResponse);
     });
 
-    it("should respond with 404 if book id is empty", async () => {  
+    it("should respond with 400 if book id is empty", async () => {  
         Book.getBook = jest.fn().mockImplementationOnce((id) => {
             if (id.length === 0) {
                 return Promise.resolve(null);
@@ -62,8 +62,8 @@ describe("Verify GET /book_dtls/:id", () => {
         });
         BookInstance.getBookDetails = jest.fn().mockResolvedValue([]);
         const response = await request(app).get("/book_dtls?id=");
-        expect(response.statusCode).toBe(404);
-        expect(response.text).toBe("Book  not found");
+        expect(response.statusCode).toBe(400);
+        expect(response.text).toBe("Invalid ID: ID must be a 24-character alphanumeric string.");
     });
 
     it("should respond with 404 if book is not found", async () => {

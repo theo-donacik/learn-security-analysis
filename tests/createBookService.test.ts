@@ -47,7 +47,7 @@ describe("Verify POST /create_book", () => {
         expect(response.text).toBe('Error creating book: Database error');
     });
 
-    it("should return error message with status 200 for invalid inputs", async () => {
+    it("should return error message with status 400 for invalid inputs", async () => {
         const mockReqBody = {
             familyName: "Tagore",
             firstName: "Robi",
@@ -56,7 +56,24 @@ describe("Verify POST /create_book", () => {
         const response = await request(app)
             .post('/newbook')
             .send(mockReqBody);
-        expect(response.statusCode).toBe(200);
-        expect(response.text).toBe('Invalid Inputs');
+        expect(response.statusCode).toBe(400);
+        expect(response.text).toBe('Invalid input: All fields must be strings.');
     });
+
+    it("should return 400 if the request body has cross-site scripting (XSS) attack vectors", async () => {
+
+        const mockReqBody = {
+            familyName: "Tagore", 
+            firstName: "Robi",
+            genreName: "Fiction",
+            bookTitle: "<script>alert('XSS')</script>" // This is a potential XSS attack vector
+        }
+      
+        const response = await request(app)
+            .post('/newbook')
+            .send(mockReqBody);
+
+        expect(response.statusCode).toBe(400);
+        expect(response.text).toContain('Invalid input');
+      });
 });
