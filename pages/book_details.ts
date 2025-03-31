@@ -4,6 +4,19 @@ import express from 'express';
 
 const router = express.Router();
 
+/**
+ * sanitize input to prevent XSS attacks
+ * @param input 
+ * @returns input with HTML special characters escaped
+ */
+function escapeHTML(input: string): string {
+  return input
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 /**
  * @route GET /book_dtls
@@ -15,6 +28,7 @@ const router = express.Router();
  */
 router.get('/', async (req, res) => {
   const id = req.query.id as string;
+  const sanitizedId = escapeHTML(id.trim());
   try {
     const [book, copies] = await Promise.all([
       Book.getBook(id),
@@ -22,7 +36,7 @@ router.get('/', async (req, res) => {
     ]);
 
     if (!book) {
-      res.status(404).send(`Book ${id} not found`);
+      res.status(404).send(`Book ${sanitizedId} not found`);
       return;
     }
 
@@ -33,7 +47,7 @@ router.get('/', async (req, res) => {
     });
   } catch (err) {
     console.error('Error fetching book:', err);
-    res.status(500).send(`Error fetching book ${id}`);
+    res.status(500).send(`Error fetching book ${sanitizedId}`);
   }
 });
 
