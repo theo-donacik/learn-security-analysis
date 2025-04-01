@@ -15,22 +15,6 @@ const router = express.Router();
 router.use(bodyParser.urlencoded({ extended: true }));
 router.use(express.json());
 
-
-/**
- * sanitize input to prevent XSS attacks
- * @param input 
- * @returns input with HTML special characters escaped
- */
-
-function escapeHTML(input: string): string {
-  return input
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
-
 /**
  * @route POST /newbook
  * @returns a newly created book for an existing author and genre in the database
@@ -44,7 +28,7 @@ router.post('/', validateBookDetailsMiddleware, appRateLimiter, async (req: Requ
       const savedBook = await book.saveBookOfExistingAuthorAndGenre(familyName, firstName, genreName, bookTitle);
       res.status(200).send(savedBook);
     } catch (err: unknown) {
-      res.status(500).send('Error creating book: ' + escapeHTML((err as Error).message.trim()));
+      res.status(500).send('Error creating book: ' + (err as Error).message);
     }
   } else {
     res.send('Invalid Inputs');
